@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulateur Autoconsommation Collective</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f4; }
+    h1 { color: #2c3e50; }
+    label, select, input { display: block; margin: 10px 0; }
+    .result { margin-top: 20px; padding: 10px; background: #e8f6e8; border: 1px solid #2ecc71; }
+  </style>
+</head>
+<body>
+  <h1>Simulateur d'Autoconsommation Collective</h1>
+  <label>Consommation annuelle (kWh):</label>
+  <input type="number" id="consommation" placeholder="Ex: 4500">
+
+  <label>Code postal:</label>
+  <input type="text" id="codePostal" placeholder="Ex: 29910">
+
+  <label>Type de logement:</label>
+  <select id="logement">
+    <option value="maison">Maison individuelle</option>
+    <option value="appartement">Appartement</option>
+  </select>
+
+  <button onclick="calculer()">Calculer</button>
+
+  <div class="result" id="resultat"></div>
+
+  <script>
+    function calculer() {
+      const conso = parseFloat(document.getElementById("consommation").value);
+      const logement = document.getElementById("logement").value;
+      const codePostal = document.getElementById("codePostal").value;
+
+      if (isNaN(conso) || !codePostal) {
+        alert("Veuillez remplir tous les champs correctement.");
+        return;
+      }
+
+      const prixKWh = 0.25;
+      const reduction = 0.20;
+      const coutInstallationParKWc = 2000;
+      const productionParKWc = 1100;
+      const duree = 20;
+
+      let partLocale = logement === "maison" ? 0.6 : 0.4;
+      if (codePostal.startsWith("29")) partLocale += 0.1;
+      if (partLocale > 0.8) partLocale = 0.8;
+
+      const energieLocale = conso * partLocale;
+      const economieAnnuelle = energieLocale * prixKWh * reduction;
+
+      const puissanceKWc = conso / productionParKWc;
+      const coutInstallation = puissanceKWc * coutInstallationParKWc;
+
+      const economieTotale = economieAnnuelle * duree;
+      const TRI = ((economieTotale - coutInstallation) / coutInstallation * 100).toFixed(1);
+
+      document.getElementById("resultat").innerHTML = `
+        <strong>Résultats :</strong><br>
+        Part d'énergie locale estimée : ${(partLocale * 100).toFixed(0)} %<br>
+        Économies annuelles estimées : ${economieAnnuelle.toFixed(2)} €<br>
+        Coût d'installation estimé : ${coutInstallation.toFixed(0)} €<br>
+        TRI sur 20 ans : ${TRI} %
+      `;
+    }
+  </script>
+</body>
+</html>
